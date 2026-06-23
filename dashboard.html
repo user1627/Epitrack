@@ -2,79 +2,76 @@
 <html>
 <head>
     <title>EpiTrack Ethiopia Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://tailwindcss.com"></script>
     <script src="https://jsdelivr.net"></script>
 </head>
 <body class="bg-gray-100 font-sans">
     <nav class="bg-slate-950 p-4 text-white flex justify-between items-center shadow-md">
         <div class="flex items-center space-x-2">
             <span class="text-xl">🇪🇹</span>
-            <span class="font-bold text-lg">EpiTrack Command Center (Visual)</span>
+            <span class="font-bold text-lg">EpiTrack Command Center (GPS Enabled)</span>
         </div>
         <div class="text-xs bg-slate-800 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20 font-mono">● System Online</div>
     </nav>
     <div class="container mx-auto px-4 py-8">
+        <!-- Metric boxes -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-                <div class="text-xs font-bold text-gray-400 uppercase">Woreda Hamaa / Active Hotspots</div>
-                <div class="text-2xl font-black text-red-600 mt-1" id="outbreaks-box">...</div>
-            </div>
-            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-                <div class="text-xs font-bold text-gray-400 uppercase">Waliigala / Total Cases</div>
-                <div class="text-2xl font-black text-slate-800 mt-1" id="cases-box">...</div>
-            </div>
-            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-                <div class="text-xs font-bold text-gray-400 uppercase">Mirkana'an / Lab Confirmed</div>
-                <div class="text-2xl font-black text-indigo-600 mt-1">318 Records</div>
-            </div>
-            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-                <div class="text-xs font-bold text-gray-400 uppercase">DHIS2 Sync Rate</div>
-                <div class="text-2xl font-black text-emerald-600 mt-1">98.4%</div>
-            </div>
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200"><div class="text-xs font-bold text-gray-400 uppercase">Woreda Hamaa</div><div class="text-2xl font-black text-red-600 mt-1" id="outbreaks-box">...</div></div>
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200"><div class="text-xs font-bold text-gray-400 uppercase">Waliigala / Total Cases</div><div class="text-2xl font-black text-slate-800 mt-1" id="cases-box">...</div></div>
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200"><div class="text-xs font-bold text-gray-400 uppercase">Mirkana'an</div><div class="text-2xl font-black text-indigo-600 mt-1">318 Records</div></div>
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200"><div class="text-xs font-bold text-gray-400 uppercase">DHIS2 Sync Rate</div><div class="text-2xl font-black text-emerald-600 mt-1">98.4%</div></div>
         </div>
+        
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- Entry Form -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:col-span-1">
                 <h2 class="font-bold text-slate-800 text-lg mb-4">📝 Gabaasa Galchi / Submit</h2>
                 <form action="/ui/report/submit" method="POST" class="space-y-4">
-                    <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Woreda / Location</label><input type="text" name="woreda" required placeholder="e.g. Jimma" class="w-full p-2 border border-gray-300 rounded text-sm"></div>
-                    <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Dhukkuba / Disease</label><input type="text" name="disease_type" required placeholder="e.g. Cholera" class="w-full p-2 border border-gray-300 rounded text-sm"></div>
-                    <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Baay'ina / Case Count</label><input type="number" name="case_count" required min="0" placeholder="e.g. 5" class="w-full p-2 border border-gray-300 rounded text-sm"></div>
+                    <!-- Hidden elements capturing telemetry coordinates -->
+                    <input type="hidden" id="lat-field" name="latitude">
+                    <input type="hidden" id="lon-field" name="longitude">
+                    
+                    <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Woreda</label><input type="text" name="woreda" required placeholder="e.g. Jimma" class="w-full p-2 border border-gray-300 rounded text-sm"></div>
+                    <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Dhukkuba</label><input type="text" name="disease_type" required placeholder="e.g. Cholera" class="w-full p-2 border border-gray-300 rounded text-sm"></div>
+                    <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Baay'ina</label><input type="number" name="case_count" required min="0" placeholder="e.g. 5" class="w-full p-2 border border-gray-300 rounded text-sm"></div>
                     <button type="submit" class="bg-blue-600 text-white font-bold text-sm p-2 rounded hover:bg-blue-700 transition w-full cursor-pointer">🚀 Ergi / Submit Report</button>
                 </form>
             </div>
+            <!-- Analytics Canvas -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:col-span-2" style="position: relative; height:340px;">
-                <h2 class="font-bold text-slate-800 text-lg mb-2">📊 Agarsiisa Haala Dhukkubaa / Disease Distribution Analytics</h2>
+                <h2 class="font-bold text-slate-800 text-lg mb-2">📊 Analytics</h2>
                 <canvas id="epiChart" style="width:100% !important; height:250px !important;"></canvas>
             </div>
         </div>
+
+        <!-- Records Table -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div class="bg-gray-50 p-4 border-b border-gray-200 flex justify-between items-center">
-                <h2 class="font-bold text-slate-800">Ragaalee Live Disease Intelligence Records</h2>
-                <div class="space-x-4 flex items-center">
-                    <a href="/api/reports/export" class="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-emerald-700 transition">📊 CSV Gabaasa Fe'adhu / Download CSV Report</a>
-                    <a href="/docs" target="_blank" class="text-xs text-blue-600 font-bold hover:underline">🔐 Secure API (/docs)</a>
-                </div>
-            </div>
+            <div class="bg-gray-50 p-4 border-b border-gray-200 flex justify-between items-center"><h2 class="font-bold text-slate-800">Ragaalee Records</h2></div>
             <table class="w-full text-left border-collapse text-sm text-slate-700">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-gray-200 text-gray-400 font-bold uppercase text-xs">
-                        <th class="p-3">Woreda</th><th class="p-3">Dhukkuba / Disease</th><th class="p-3">Cases</th><th class="p-3">Status</th><th class="p-3">Time</th>
-                    </tr>
+                    <tr class="bg-slate-50 border-b border-gray-200 text-gray-400 font-bold uppercase text-xs"><th class="p-3">Woreda</th><th class="p-3">Dhukkuba</th><th class="p-3">Cases</th><th class="p-3">Status</th><th class="p-3">GPS Location</th><th class="p-3">Time</th></tr>
                 </thead>
                 <tbody id="table-rows"></tbody>
             </table>
         </div>
     </div>
     <script>
+        // Automatic Geo-Location Fetch Activation
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                document.getElementById('lat-field').value = position.coords.latitude;
+                document.getElementById('lon-field').value = position.coords.longitude;
+            });
+        }
+
         async function loadDashboardData() {
             try {
                 const res = await fetch("/api/v1/dashboard-data");
                 const data = await res.json();
-                
                 document.getElementById("outbreaks-box").innerText = data.active_outbreaks + " Woredas";
                 document.getElementById("cases-box").innerText = data.total_cases + " Cases";
                 document.getElementById("table-rows").innerHTML = data.rows_html;
-
+                
                 const ctx = document.getElementById("epiChart").getContext("2d");
                 new Chart(ctx, {
                     type: "bar",
@@ -88,15 +85,9 @@
                             borderWidth: 1
                         }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: { y: { beginAtZero: true } }
-                    }
+                    options: { responsive: true, maintainAspectRatio: false }
                 });
-            } catch (err) {
-                console.error("Dashboard engine rendering failure:", err);
-            }
+            } catch (err) { console.error(err); }
         }
         loadDashboardData();
     </script>
